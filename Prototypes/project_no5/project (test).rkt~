@@ -1,0 +1,93 @@
+#lang racket
+
+(require flomat)
+
+;; --- 1. Helper Functions ---
+
+(define (timing F . Arg)
+  (let* ([t_start (current-inexact-milliseconds)]
+         [ret (apply F Arg)]
+         [t_end (current-inexact-milliseconds)]
+         [t (- t_end t_start)])
+    (list ret t)))
+
+(define (load-csv-to-flomat filename)
+  (let* ([rows (call-with-input-file filename
+                 (lambda (in)
+                   (for/list ([line (in-lines in)])
+                     (map (lambda (x) (exact->inexact (string->number x))) 
+                          (string-split line ",")))))]
+         [n-rows (length rows)]
+         [n-cols (length (first rows))]
+         ;; Flatten and convert to flvector for high-performance storage
+         [flat-data (apply append rows)]
+         [vec-data (list->vector flat-data)]) 
+    (flomat n-rows n-cols vec-data)))
+
+(define (pretty-print-flomat mat n)
+  (for ([i (in-range n)])
+    (for ([j (in-range n)])
+      (display (real->decimal-string (ref mat i j) 4)) 
+      (display "\t"))
+    (newline)))
+
+;; Define Identity Matrix (Eye) generator manually as it may not be exported
+(define (eye n)
+  (let ([v (make-vector (* n n) 0.0)])
+    (for ([i (in-range n)])
+      (vector-set! v (+ (* i n) i) 1.0))
+    (flomat n n v)))
+
+;; --- 2. Optimized Matrix Exponential (Scaling & Squaring) ---
+
+(define (mat-norm-inf A)
+  ;; Infinity norm: max row sum
+  (let ([n (nrows A)])
+    (apply max 
+           (for/list ([i (in-range n)])
+             (for/sum ([j (in-range (ncols A))])
+               (abs (ref A i j)))))))
+
+(define (matrix-exp-optimized A)
+  (let* ([n-norm (mat-norm-inf A)]
+         ;; Calculate scaling factor 's' such that ||A/2^s|| < 0.5
+         ;; This ensures the Taylor series converges very rapidly
+         [s (max 0 (+ 1 (exact-ceiling (/ (log n-norm) (log 2)))))]
+         [scaling-factor (expt 2 s)]
+         
+         ;; CORRECTION: Use 'times' for scalar multiplication
+         [As (times (/ 1.0 scaling-factor) A)] 
+         [I (eye (nrows A))]
+         
+         ;; Taylor Series for the scaled matrix
+         [E (let loop ([k 1] 
+                       [term I] 
+                       [sum I])
+              (if (> k 15) ;; 15 terms is sufficient for small norm
+                  sum
+                  (let* ([next-term (times (/ 1.0 k) (times term As))]) 
+                    (loop (+ k 1) next-term (plus sum next-term)))))])
+    
+    ;; Squaring Phase: (e^As)^(2^s) = e^A
+    ;; Repeatedly square the result to recover the full exponential
+    (let loop ([k 0] [res E])
+      (if (= k s)
+          res
+          (loop (+ k 1) (times res res))))))
+
+;; --- 3. Main Execution ---
+
+(display "Loading data...") (newline)
+(define mat (load-csv-to-flomat "exp_data.csv"))
+(display "Data loaded.") (newline)
+
+(display "Displaying the 5x5 sub-matrix") (newline)
+(pretty-print-flomat mat 5)
+
+(display "Begins calculations...") (newline)
+(define result (timing matrix-exp-optimized mat))
+
+(display "Results are in") (newline)
+(display "Time (ms): ")
+(display (cadr result)) 
+(newline)
