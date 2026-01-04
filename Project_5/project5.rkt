@@ -17,9 +17,9 @@
                        [list ret t]
 )))
 
-(define (calc-vec-norm v)
-  (sqrt
-   (dot v v)))
+(define calc-vec-norm (lambda (v) (
+    sqrt (dot v v)
+)))
 
 
 (define find-bk-rec (lambda (A b_curr) (
