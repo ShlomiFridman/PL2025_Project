@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-epsilon = 1e-8
+epsilon = 1e-6
 scale_pow = 16
 
 mat = np.loadtxt("exp_data.csv", delimiter=",")
@@ -9,7 +9,7 @@ mat = np.loadtxt("exp_data.csv", delimiter=",")
 n = mat.shape[0]
 
 def calc_vec_norm(vec):
-    return np.sqrt(np.sum(np.square(vec)))
+    return np.sqrt(np.dot(vec, vec))
 
 def find_bk(A):
     b_curr = np.zeros(n)
@@ -22,7 +22,7 @@ def find_bk(A):
 
 def calc_mat_norm(A, bk):
     bk_t = bk.T
-    mu_org = (bk_t @ A @ bk) / (np.dot(bk_t, bk))
+    mu_org = (bk_t @ A @ bk) / (bk_t @ bk)
     return mu_org
 
 def find_m(A, bk):
