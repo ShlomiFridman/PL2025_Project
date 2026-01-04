@@ -20,13 +20,13 @@ def find_bk(A):
         b_next /= calc_vec_norm(b_next)
     return b_curr
 
-def calc_mat_norm(A, bk):
+def calc_mu(A, bk):
     bk_t = bk.T
     mu_org = (bk_t @ A @ bk) / (bk_t @ bk)
     return mu_org
 
 def find_m(A, bk):
-    mu_org = calc_mat_norm(A, bk)
+    mu_org = calc_mu(A, bk)
     mu_acc = mu_org
     m = 1
     m_fact = 1
@@ -66,6 +66,7 @@ def run_prog(A):
 
 
 res_mat, total_time = run_prog(mat)
-print(f"Before:\n{mat[:5,:5]}\n")
+print()
+print(f"Input sub-matrix (5x5):\n{mat[:5,:5]}\n")
 print(f"Total time: {total_time:.3f} seconds\n")
-print(res_mat[:5,:5])
+print(f"Result sub-matrix (5x5) exponential:\n{res_mat[:5,:5]}")

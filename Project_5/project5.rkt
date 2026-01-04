@@ -17,12 +17,12 @@
                        [list ret t]
 )))
 
-(define calc-vec-norm (lambda (v) (
+(define calc-vec-norm (λ(v) (
     sqrt (dot v v)
 )))
 
 
-(define find-bk-rec (lambda (A b_curr) (
+(define find-bk-rec (λ(A b_curr) (
     let*
         (
             [b_next_vec (times A b_curr)]
@@ -38,11 +38,11 @@
         )
 )))
 
-(define find-bk (lambda (A)
+(define find-bk (λ(A)
     (find-bk-rec A (ones n 1))
 ))
 
-(define calc-mat-norm (lambda (A bk) (
+(define calc-mu (λ(A bk) (
     let*
     (
         [bk-t (transpose bk)]
@@ -55,7 +55,7 @@
     norm
 )))
 
-(define find-m-rec (lambda (mu-org mu-acc m-fact m) (
+(define find-m-rec (λ(mu-org mu-acc m-fact m) (
     if (< (/ mu-acc m-fact) epsilon)
         m  
         (let*
@@ -68,13 +68,13 @@
         )
 )))
 
-(define find-m (lambda (A bk) (
+(define find-m (λ(A bk) (
     let
-        ([mu-norm (calc-mat-norm A bk)])
+        ([mu-norm (calc-mu A bk)])
         (find-m-rec mu-norm mu-norm 1 1)
 )))
 
-(define calc-exp-mat-rec (lambda (A-org A-acc k-fact res-mat loop-ind end-ind) (
+(define calc-exp-mat-rec (λ(A-org A-acc k-fact res-mat loop-ind end-ind) (
     if (= loop-ind end-ind)
     res-mat
     (
@@ -90,7 +90,7 @@
     )
 )))
 
-(define calc-exp-mat (lambda (A m) (
+(define calc-exp-mat (λ(A m) (
     let
         (
             [eye-n (eye n)]
@@ -99,7 +99,7 @@
         (calc-exp-mat-rec A eye-n 1 eye-n 1 m1)
 )))
 
-(define run-prog (lambda (A) (
+(define run-prog (λ(A) (
     let*
         (
             [bk (find-bk A)]
