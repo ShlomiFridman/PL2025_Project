@@ -11,18 +11,16 @@
                        [list ret t]
 )))
 
-(define calc-vec-norm (λ(v) (
-    sqrt (dot v v)
-)))
-
 (define path "./exp_data.csv")
 (define delim #rx"([ ]*(,)[ ]*)|([ ]+)")
 
-(define (next-line-it file)
-  (let ((line (read-line file 'any)))
-    (if (eof-object? line)
-        (list)
-        (cons line (next-line-it file)))))
+(define next-line-it (λ(file) (
+    let ((line (read-line file 'any)))
+        (if (eof-object? line)
+            (list)
+            (cons line (next-line-it file))
+        )
+)))
 
 (define read_data (λ(path delim)
       (define file (open-input-file path))
@@ -46,10 +44,10 @@
     let*
         (
             [b_next_vec (times A b_curr)]
-            [b_next_norm (/ 1 (calc-vec-norm b_next_vec))]
+            [b_next_norm (/ 1 (norm b_next_vec))]
             [b_next (times b_next_vec b_next_norm)]
             [b_diff (minus b_curr b_next)]
-            [b_diff_norm_abs (abs (calc-vec-norm b_diff))]
+            [b_diff_norm_abs (norm b_diff)]
         )
         (
             if (< b_diff_norm_abs epsilon)
