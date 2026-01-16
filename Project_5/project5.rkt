@@ -22,22 +22,24 @@
         )
 )))
 
-(define read_data (λ(path delim)
-      (define file (open-input-file path))
-      (define lines (call-with-input-file path next-line-it))
-      (define numbers (map (λ(x) (string-split x delim)) lines))
-      (define mat (map (λ(x)(map string->number x)) numbers))
-      (close-input-port file)
-       mat))
+(define read-data (λ(path delim) (
+    let*
+        (
+            [file (open-input-file path)]
+            [lines (call-with-input-file path next-line-it)]
+            [numbers (map (λ(x) (string-split x delim)) lines)]
+        )
+        (map (λ(x)(map string->number x)) numbers)
+)))
 
 
 (define epsilon 1e-6)
 (define scale_pow 16)
 
 (display "Loading matrix from file...   ")
-(define data (read_data path delim))
+(define data (read-data path delim))
 (define mat (lists->flomat data))
-(define n (nrows mat))
+(define mat-n (nrows mat))
 (display "Done\n\n")
 
 (define find-bk-rec (λ(A b_curr) (
@@ -47,16 +49,16 @@
             [b_next_norm (/ 1 (norm b_next_vec))]
             [b_next (times b_next_vec b_next_norm)]
             [b_diff (minus b_curr b_next)]
-            [b_diff_norm_abs (norm b_diff)]
+            [b_diff_norm (norm b_diff)]
         )
         (
-            if (< b_diff_norm_abs epsilon)
+            if (< b_diff_norm epsilon)
                 b_curr
                 (find-bk-rec A b_next)
         )
 )))
 
-(define find-bk (λ(A)
+(define find-bk (λ(A n)
     (find-bk-rec A (ones n 1))
 ))
 
@@ -108,7 +110,7 @@
     )
 )))
 
-(define calc-exp-mat (λ(A m) (
+(define calc-exp-mat (λ(A n m) (
     let
         (
             [eye-n (eye n)]
@@ -117,16 +119,16 @@
         (calc-exp-mat-rec A eye-n 1 eye-n 1 m1)
 )))
 
-(define run-prog (λ(A) (
+(define run-prog (λ(A n) (
     let*
         (
-            [bk (find-bk A)]
+            [bk (find-bk A n)]
             [m (find-m A bk)]
         )
-        (calc-exp-mat A m)
+        (calc-exp-mat A n m)
 )))
 
-(define res (timing run-prog mat))
+(define res (timing run-prog mat mat-n))
 (define res-mat (car res))
 (define res-time (car (cdr res)))
 

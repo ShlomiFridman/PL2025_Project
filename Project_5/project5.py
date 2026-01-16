@@ -6,12 +6,12 @@ scale_pow = 16
 
 mat = np.loadtxt("exp_data.csv", delimiter=",")
 
-n = mat.shape[0]
+mat_n = mat.shape[0]
 
 def calc_vec_norm(vec):
     return np.sqrt(np.dot(vec, vec))
 
-def find_bk(A):
+def find_bk(A, n):
     b_curr = np.zeros(n)
     b_next = np.ones(n)
     while calc_vec_norm(b_next - b_curr) >= epsilon:
@@ -38,7 +38,7 @@ def find_m(A, bk):
 
     return m
 
-def calc_exp_mat(A, m):
+def calc_exp_mat(A, n, m):
     A_acc = np.eye(n, dtype=A.dtype)
     res_mat = np.eye(n, dtype=A.dtype)
     k_fact = 1
@@ -49,14 +49,14 @@ def calc_exp_mat(A, m):
         res_mat += A_acc/k_fact
     return res_mat
 
-def run_prog(A):
+def run_prog(A, n):
     startTime = time.time()
     
     A_scaled = A/(2**scale_pow)
     
-    bk = find_bk(A_scaled)
+    bk = find_bk(A_scaled, n)
     m = find_m(A_scaled, bk)
-    res_mat = calc_exp_mat(A_scaled, m)
+    res_mat = calc_exp_mat(A_scaled, n, m)
     
     for i in range(scale_pow):
         res_mat = res_mat @ res_mat
@@ -65,7 +65,7 @@ def run_prog(A):
     return res_mat, (endTime-startTime)
 
 
-res_mat, total_time = run_prog(mat)
+res_mat, total_time = run_prog(mat, mat_n)
 print()
 print(f"Input sub-matrix (5x5):\n{mat[:5,:5]}\n")
 print(f"Total time: {total_time:.3f} seconds\n")
