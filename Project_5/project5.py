@@ -20,13 +20,13 @@ def find_bk(A, n):
         b_next /= calc_vec_norm(b_next)
     return b_curr
 
-def calc_mu(A, bk):
+def calc_abs_mu(A, bk):
     bk_t = bk.T
     mu_org = (bk_t @ A @ bk) / (bk_t @ bk)
-    return mu_org
+    return np.abs(mu_org)
 
 def find_m(A, bk):
-    mu_org = calc_mu(A, bk)
+    mu_org = calc_abs_mu(A, bk)
     mu_acc = mu_org
     m = 1
     m_fact = 1

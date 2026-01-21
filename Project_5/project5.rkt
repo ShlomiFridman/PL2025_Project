@@ -62,7 +62,7 @@
     (find-bk-rec A (ones n 1))
 ))
 
-(define calc-mu (λ(A bk) (
+(define calc-abs-mu (λ(A bk) (
     let*
     (
         [bk-t (transpose bk)]
@@ -72,7 +72,7 @@
         [bk-norm (dot bk bk)]
         [norm (/ m3 bk-norm)]
     )
-    norm
+    (abs norm)
 )))
 
 (define find-m-rec (λ(mu-org mu-acc m-fact m) (
@@ -90,7 +90,7 @@
 
 (define find-m (λ(A bk) (
     let
-        ([mu-norm (calc-mu A bk)])
+        ([mu-norm (calc-abs-mu A bk)])
         (find-m-rec mu-norm mu-norm 1 1)
 )))
 
