@@ -34,13 +34,6 @@
 
 
 (define epsilon 1e-6)
-(define scale_pow 16)
-
-(display "Loading matrix from file...   ")
-(define data (read-data path delim))
-(define mat (lists->flomat data))
-(define mat-n (nrows mat))
-(display "Done\n\n")
 
 (define find-bk-rec (λ(A b_curr) (
     let*
@@ -127,6 +120,12 @@
         )
         (calc-exp-mat A n m)
 )))
+
+(display "Loading matrix from file...   ")
+(define data (read-data path delim))
+(define mat (lists->flomat data))
+(define mat-n (nrows mat))
+(display "Done\n\n")
 
 (define res (timing run-prog mat mat-n))
 (define res-mat (car res))
