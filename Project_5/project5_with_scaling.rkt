@@ -112,7 +112,7 @@
         (calc-exp-mat-rec A eye-n 1 eye-n 1 m1)
 )))
 
-(define scale-down (lambda (A scale-pow) (
+(define scale-down (λ(A scale-pow) (
     let*
         (
             [mul-val (expt 2 scale-pow)]
@@ -121,7 +121,7 @@
         (times A div-val)
 )))
 
-(define scale-up (lambda (A scales-left) (
+(define scale-up (λ(A scales-left) (
     if (= scales-left 0)
         A
         (scale-up (times A A) (- scales-left 1))
